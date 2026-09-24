@@ -31,6 +31,20 @@ Docker'а на ноутбуке нет? Тогда локально работа
 | `make seed` | перезалить учебные данные |
 | `make help` | список всех команд |
 
+## Как проверить, что сервис жив
+
+После `make up`:
+
+```bash
+curl http://localhost:8080/health
+make ps      # контейнеры backend и db: running / healthy
+make logs    # логи backend, если /health не отвечает
+```
+
+В `docker-compose.yml` у базы есть `healthcheck` (`mysqladmin ping`); backend стартует
+только когда db healthy. HTTP-проверка сервиса — `GET /health` на порту `APP_PORT`
+(по умолчанию 8080). Отдельной make-цели «health» нет.
+
 ## API
 
 | Метод | Путь | Зачем |
