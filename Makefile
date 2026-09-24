@@ -32,11 +32,11 @@ install: ## Установить PHP-зависимости локально (н
 
 test: ## Прогнать тесты PHPUnit
 ifeq ($(LOCAL_PHPUNIT),yes)
-	vendor/bin/phpunit --colors=always
+	php vendor/bin/phpunit --colors=always
 else ifeq ($(LOCAL_PHP),yes)
 	@echo "==> зависимостей нет, ставлю их локально"
 	composer install --no-interaction --no-progress
-	vendor/bin/phpunit --colors=always
+	php vendor/bin/phpunit --colors=always
 else
 	$(COMPOSE) run --rm --no-deps backend vendor/bin/phpunit --colors=always
 endif
