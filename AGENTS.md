@@ -13,11 +13,11 @@ curl http://localhost:8080/health
 Без Docker: `composer install`, затем `make test` и `make lint` работают локально. `make down`, `make ps`, `make logs`, `make seed` — см. `make help`.
 
 ## Структура
-- `backend/` — PHP 8.3 + Slim: `src/Domain`, `src/Http`, `src/Repository`, `src/Support`, `config/rules.php`, `public/`
-- `frontend/` — форма заявки на ванильном JS
+- `backend/` — PHP: `src/Domain`, `src/Http`, `src/Repository`, `src/Support`, `src/AppFactory.php`, `src/Database.php`, `config/rules.php`, `public/`
+- `frontend/` — `index.html`, `app.js`, `styles.css` (форма заявки)
 - `db/` — `schema.sql` и `seed.sql` (синтетические заявки)
-- `tests/` — PHPUnit: `Unit/` и `Feature/`
-- `docs/` — артефакты задач: `setup/`, `intent/`, `spec/`, `plan/`, `metrics/`, `qa/`, `review/`, `sources/` (материалы клиента), и др.
+- `tests/` — PHPUnit: `Unit/` (5 тестов), `Feature/` (пока только `README.md`)
+- `docs/` — артефакты задач: `setup/`, `intent/`, `spec/`, `plan/`, `metrics/`, `qa/`, `review/`, `sources/` (материалы клиента), `deploy/`, `hw1/`, `security/`, `team/` и др.
 - `scripts/`, `mocks/` — служебные скрипты, моки внешних сервисов
 - `.kilo/`, `.githooks/`, `.github/` — конфиг Kilo, git-хуки, шаблоны CI
 
@@ -25,7 +25,6 @@ curl http://localhost:8080/health
 - `declare(strict_types=1)` в каждом PHP-файле, классы `final`
 - Namespace `CarMoneyLab\`, PSR-4 от `backend/src/`
 - Бизнес-числа не хардкодим: пороги и лимиты берём из `backend/config/rules.php`
-- Тесты PHPUnit: AAA, имя описывает поведение, тест заканчивается assert'ом
 
 ## Правила для агента
 - Не читать и не править `.env*`. Не запускать `scripts/reset_db.sh` (удаляет данные; восстановление — `make seed`).
