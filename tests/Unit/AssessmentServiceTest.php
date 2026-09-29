@@ -75,7 +75,7 @@ final class AssessmentServiceTest extends TestCase
 
     public function testApproveLtvWithMileage399999KeepsApproveAndLimit(): void
     {
-        $result = $this->service->assess($this->payload(450000, 900000) + ['mileage' => 399999]);
+        $result = $this->service->assess(array_merge($this->payload(450000, 900000), ['mileage' => 399999]));
 
         self::assertSame(DecisionEngine::APPROVE, $result['decision']);
         self::assertSame(450000, $result['approved_limit']);
@@ -83,7 +83,7 @@ final class AssessmentServiceTest extends TestCase
 
     public function testApproveLtvWithMileage400000KeepsApproveAndLimit(): void
     {
-        $result = $this->service->assess($this->payload(450000, 900000) + ['mileage' => 400000]);
+        $result = $this->service->assess(array_merge($this->payload(450000, 900000), ['mileage' => 400000]));
 
         self::assertSame(DecisionEngine::APPROVE, $result['decision']);
         self::assertSame(450000, $result['approved_limit']);
@@ -91,7 +91,7 @@ final class AssessmentServiceTest extends TestCase
 
     public function testApproveLtvWithMileage400001DowngradesToReviewAndZeroesLimit(): void
     {
-        $result = $this->service->assess($this->payload(450000, 900000) + ['mileage' => 400001]);
+        $result = $this->service->assess(array_merge($this->payload(450000, 900000), ['mileage' => 400001]));
 
         self::assertSame(DecisionEngine::REVIEW, $result['decision']);
         self::assertSame(0, $result['approved_limit']);
@@ -99,7 +99,7 @@ final class AssessmentServiceTest extends TestCase
 
     public function testRejectLtvWithHighMileageStaysRejectAndZeroesLimit(): void
     {
-        $result = $this->service->assess($this->payload(855000, 900000) + ['mileage' => 450000]);
+        $result = $this->service->assess(array_merge($this->payload(855000, 900000), ['mileage' => 450000]));
 
         self::assertSame(DecisionEngine::REJECT, $result['decision']);
         self::assertSame(0, $result['approved_limit']);
