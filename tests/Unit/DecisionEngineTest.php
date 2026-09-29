@@ -14,25 +14,34 @@ final class DecisionEngineTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->engine = new DecisionEngine(['approve_max' => 60.0, 'review_max' => 85.0]);
+        $this->engine = new DecisionEngine(
+            ['approve_max' => 60.0, 'review_max' => 85.0],
+            400000,
+        );
     }
 
-    #[DataProvider('ltvValues')]
-    public function testDecidesByLtv(float $ltv, string $expected): void
+    #[DataProvider('ltvAndMileageValues')]
+    public function testDecidesByLtvAndMileage(float $ltv, int $mileage, string $expected): void
     {
-        self::assertSame($expected, $this->engine->decide($ltv));
+        self::assertSame($expected, $this->engine->decide($ltv, $mileage));
     }
 
-    /** @return array<string,array{float,string}> */
-    public static function ltvValues(): array
+    /** @return array<string,array{float,int,string}> */
+    public static function ltvAndMileageValues(): array
     {
         return [
-            'низкий LTV' => [28.5, DecisionEngine::APPROVE],
-            'середина зелёной зоны' => [45.0, DecisionEngine::APPROVE],
-            'серая зона' => [72.3, DecisionEngine::REVIEW],
-            'верхняя граница серой зоны' => [85.0, DecisionEngine::REVIEW],
-            'сразу за верхней границей' => [85.01, DecisionEngine::REJECT],
-            'высокий LTV' => [120.0, DecisionEngine::REJECT],
+            'низкий LTV, пробег ниже порога' => [28.5, 399999, DecisionEngine::APPROVE],
+            'середина зелёной зоны, пробег ниже порога' => [45.0, 399999, DecisionEngine::APPROVE],
+            'серая зона LTV, пробег ниже порога' => [72.3, 399999, DecisionEngine::REVIEW],
+            'верхняя граница серой зоны, пробег ниже порога' => [85.0, 399999, DecisionEngine::REVIEW],
+            'сразу за верхней границей, пробег ниже порога' => [85.01, 399999, DecisionEngine::REJECT],
+            'высокий LTV, пробег ниже порога' => [120.0, 399999, DecisionEngine::REJECT],
+
+            'граница 400000 включительно — ещё approve' => [28.5, 400000, DecisionEngine::APPROVE],
+            'пробег 400001 понижает approve до review' => [28.5, 400001, DecisionEngine::REVIEW],
+            'серая зона + пробег выше порога — review остаётся review' => [72.3, 400001, DecisionEngine::REVIEW],
+            'зона reject + пробег выше порога — reject остаётся reject' => [90.0, 400001, DecisionEngine::REJECT],
+            'верхняя граница LTV на 400000 — review, LTV-граница не сдвинулась' => [85.0, 400000, DecisionEngine::REVIEW],
         ];
     }
 }

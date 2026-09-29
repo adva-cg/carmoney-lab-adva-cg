@@ -21,6 +21,8 @@ return [
         'min_year' => 1990,
         'max_age_years' => 20,
         'max_mileage_km' => 500000,
+        // Decision threshold: mileage above it is review; keep below max_mileage_km.
+        'review_mileage_km' => 400000,
     ],
 
     'amount' => [

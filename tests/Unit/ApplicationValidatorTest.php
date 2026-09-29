@@ -79,4 +79,78 @@ final class ApplicationValidatorTest extends TestCase
             );
         }
     }
+
+    public function testRejectsMissingMileageKey(): void
+    {
+        $payload = $this->validPayload();
+        unset($payload['mileage']);
+
+        try {
+            $this->validator->validate($payload);
+            self::fail('Ожидали ValidationException');
+        } catch (ValidationException $exception) {
+            self::assertArrayHasKey('mileage', $exception->errors());
+        }
+    }
+
+    public function testRejectsEmptyMileageString(): void
+    {
+        try {
+            $this->validator->validate($this->validPayload(['mileage' => '']));
+            self::fail('Ожидали ValidationException');
+        } catch (ValidationException $exception) {
+            self::assertArrayHasKey('mileage', $exception->errors());
+        }
+    }
+
+    public function testRejectsNonNumericMileageString(): void
+    {
+        try {
+            $this->validator->validate($this->validPayload(['mileage' => 'abc']));
+            self::fail('Ожидали ValidationException');
+        } catch (ValidationException $exception) {
+            self::assertArrayHasKey('mileage', $exception->errors());
+        }
+    }
+
+    public function testAcceptsNumericStringMileageAndNormalises(): void
+    {
+        $result = $this->validator->validate($this->validPayload(['mileage' => '84000']));
+
+        self::assertSame(84000, $result['mileage']);
+    }
+
+    public function testAcceptsZeroMileage(): void
+    {
+        $result = $this->validator->validate($this->validPayload(['mileage' => 0]));
+
+        self::assertSame(0, $result['mileage']);
+    }
+
+    public function testAcceptsMileageAtValidationLimit(): void
+    {
+        $result = $this->validator->validate($this->validPayload(['mileage' => 500000]));
+
+        self::assertSame(500000, $result['mileage']);
+    }
+
+    public function testRejectsMileageAboveValidationLimit(): void
+    {
+        try {
+            $this->validator->validate($this->validPayload(['mileage' => 500001]));
+            self::fail('Ожидали ValidationException');
+        } catch (ValidationException $exception) {
+            self::assertArrayHasKey('mileage', $exception->errors());
+        }
+    }
+
+    public function testRejectsNegativeMileage(): void
+    {
+        try {
+            $this->validator->validate($this->validPayload(['mileage' => -1]));
+            self::fail('Ожидали ValidationException');
+        } catch (ValidationException $exception) {
+            self::assertArrayHasKey('mileage', $exception->errors());
+        }
+    }
 }
