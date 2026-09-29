@@ -24,7 +24,10 @@ final class AssessmentServiceTest extends TestCase
         $this->service = new AssessmentService(
             new ApplicationValidator($rules, new VinValidator($rules['vin']), $age),
             new LtvCalculator(),
-            new DecisionEngine($rules['ltv']),
+            new DecisionEngine(
+                $rules['ltv'],
+                (int) ($rules['vehicle']['review_mileage_km'] ?? 400000),
+            ),
             $age,
         );
     }
@@ -66,6 +69,38 @@ final class AssessmentServiceTest extends TestCase
         $result = $this->service->assess($this->payload(855000, 900000));
 
         self::assertSame(95.0, $result['ltv']);
+        self::assertSame(DecisionEngine::REJECT, $result['decision']);
+        self::assertSame(0, $result['approved_limit']);
+    }
+
+    public function testApproveLtvWithMileage399999KeepsApproveAndLimit(): void
+    {
+        $result = $this->service->assess($this->payload(450000, 900000) + ['mileage' => 399999]);
+
+        self::assertSame(DecisionEngine::APPROVE, $result['decision']);
+        self::assertSame(450000, $result['approved_limit']);
+    }
+
+    public function testApproveLtvWithMileage400000KeepsApproveAndLimit(): void
+    {
+        $result = $this->service->assess($this->payload(450000, 900000) + ['mileage' => 400000]);
+
+        self::assertSame(DecisionEngine::APPROVE, $result['decision']);
+        self::assertSame(450000, $result['approved_limit']);
+    }
+
+    public function testApproveLtvWithMileage400001DowngradesToReviewAndZeroesLimit(): void
+    {
+        $result = $this->service->assess($this->payload(450000, 900000) + ['mileage' => 400001]);
+
+        self::assertSame(DecisionEngine::REVIEW, $result['decision']);
+        self::assertSame(0, $result['approved_limit']);
+    }
+
+    public function testRejectLtvWithHighMileageStaysRejectAndZeroesLimit(): void
+    {
+        $result = $this->service->assess($this->payload(855000, 900000) + ['mileage' => 450000]);
+
         self::assertSame(DecisionEngine::REJECT, $result['decision']);
         self::assertSame(0, $result['approved_limit']);
     }
