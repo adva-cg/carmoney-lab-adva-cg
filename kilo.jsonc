@@ -11,9 +11,7 @@
     "bash": { "*": "ask", "git *": "allow", "git push*": "ask", "make *": "allow", "*.env*": "deny", 
       "*reset_db*": "deny", "kilo.jsonc": "deny", 
       "rm -rf*": "deny", "git push --force*": "deny"}
-  }
-}
-{
+  },
   "agent": {
     "analyst": {
       "description": "Ведёт аналитический консилиум двух экспертов, сводит требования, AC и технический план",
